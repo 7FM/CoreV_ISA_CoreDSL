@@ -1,6 +1,10 @@
-import "../rv_base/RISCVBase.core_desc"
+InstructionSet XCoreVBranchImmediate {
+    architectural_state {
+      unsigned int XLEN = 32;
+      unsigned int RFS = 32;
+      register unsigned<XLEN> X[RFS] [[is_main_reg]];
+    }
 
-InstructionSet XCoreVBranchImmediate extends RISCVBase {
     instructions {
         CV_BEQIMM [[no_cont]] [[cond]] {
             encoding: imm[12:12] ::imm[10:5] :: simm5[4:0] :: rs1[4:0] :: 3'b110 :: imm[4:1] :: imm[11:11] :: 7'b0001011;

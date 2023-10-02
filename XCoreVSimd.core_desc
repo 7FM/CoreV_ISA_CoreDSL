@@ -1,6 +1,10 @@
-import "../rv_base/RISCVBase.core_desc"
+InstructionSet XCoreVSimd {
+    architectural_state {
+      unsigned int XLEN = 32;
+      unsigned int RFS = 32;
+      register unsigned<XLEN> X[RFS] [[is_main_reg]];
+    }
 
-InstructionSet XCoreVSimd extends RISCVBase {
     instructions {
         // SOURCE FILE: instr_srcs/XCoreVSIMD_ALU.txt
         CV_ADD_H {
