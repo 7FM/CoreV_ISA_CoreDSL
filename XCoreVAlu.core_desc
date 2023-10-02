@@ -112,8 +112,8 @@ InstructionSet XCoreVAlu {
             assembly: {"cv.clip", "{name(rd)}, {name(rs1)}, {Iuimm5}" };
             behavior: {
                 if (rd != 0) {
-                    signed<32> a = (Iuimm5) ? -(1 << (Iuimm5 - 1)) : -1;
-                    signed<32> b = (Iuimm5) ? ((1 << (Iuimm5 - 1)) - 1) : 0;
+                    signed<32> a = (Iuimm5 != 0) ? -(1 << (Iuimm5 - 1)) : -1;
+                    signed<32> b = (Iuimm5 != 0) ? ((1 << (Iuimm5 - 1)) - 1) : 0;
                     if (X[rs1] <= a) X[rd] = (unsigned<XLEN>)a;
                     else if (X[rs1] >= b) X[rd] = (unsigned<XLEN>)b;
                     else X[rd] = X[rs1];
@@ -126,7 +126,7 @@ InstructionSet XCoreVAlu {
             behavior: {
                 if (rd != 0) {
                     signed<32> a = 0;
-                    signed<32> b = (Iuimm5) ? ((1 << (Iuimm5 - 1)) - 1) : 0;
+                    signed<32> b = (Iuimm5 != 0) ? ((1 << (Iuimm5 - 1)) - 1) : 0;
                     if ((signed)X[rs1] <= a) X[rd] = (unsigned<XLEN>)a;
                     else if ((signed)X[rs1] >= b) X[rd] = (unsigned<XLEN>)b;
                     else X[rd] = X[rs1];
