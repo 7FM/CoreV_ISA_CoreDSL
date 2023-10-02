@@ -1,3 +1,5 @@
+import "../rv_base/RISCVBase.core_desc"
+
 InstructionSet XCoreVAlu extends RISCVBase {
     instructions {
         // SOURCE FILE: instr_srcs/XCoreVALU1.txt
@@ -69,7 +71,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.exths", "{name(rd)}, {name(rs1)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)X[rs1][15:0];
+                    X[rd] = (unsigned<XLEN>)(signed)X[rs1][15:0];
                 }
             }
         }
@@ -87,7 +89,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.extbs", "{name(rd)}, {name(rs1)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)X[rs1][7:0];
+                    X[rd] = (unsigned<XLEN>)(signed)X[rs1][7:0];
                 }
             }
         }
@@ -108,8 +110,8 @@ InstructionSet XCoreVAlu extends RISCVBase {
                 if (rd != 0) {
                     signed<32> a = (Iuimm5) ? -(1 << (Iuimm5 - 1)) : -1;
                     signed<32> b = (Iuimm5) ? ((1 << (Iuimm5 - 1)) - 1) : 0;
-                    if (X[rs1] <= a) X[rd] = a;
-                    else if (X[rs1] >= b) X[rd] = b;
+                    if (X[rs1] <= a) X[rd] = (unsigned<XLEN>)a;
+                    else if (X[rs1] >= b) X[rd] = (unsigned<XLEN>)b;
                     else X[rd] = X[rs1];
                 }
             }
@@ -121,8 +123,8 @@ InstructionSet XCoreVAlu extends RISCVBase {
                 if (rd != 0) {
                     signed<32> a = 0;
                     signed<32> b = (Iuimm5) ? ((1 << (Iuimm5 - 1)) - 1) : 0;
-                    if ((signed)X[rs1] <= a) X[rd] = a;
-                    else if ((signed)X[rs1] >= b) X[rd] = b;
+                    if ((signed)X[rs1] <= a) X[rd] = (unsigned<XLEN>)a;
+                    else if ((signed)X[rs1] >= b) X[rd] = (unsigned<XLEN>)b;
                     else X[rd] = X[rs1];
                 }
             }
@@ -132,10 +134,10 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.clipr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    signed<32> a = -(X[rs2][31: 0] + 1);
-                    signed<32> b = X[rs2][31: 0];
-                    if ((signed)X[rs1] <= a) X[rd] = a;
-                    else if ((signed)X[rs1] >= b) X[rd] = b;
+                    signed<32> a = (signed<32>)-(X[rs2][31: 0] + 1);
+                    signed<32> b = (signed<32>)X[rs2][31: 0];
+                    if ((signed)X[rs1] <= a) X[rd] = (unsigned<XLEN>)a;
+                    else if ((signed)X[rs1] >= b) X[rd] = (unsigned<XLEN>)b;
                     else X[rd] = X[rs1];
                 }
             }
@@ -146,9 +148,9 @@ InstructionSet XCoreVAlu extends RISCVBase {
             behavior: {
                 if (rd != 0) {
                     signed<32> a = 0;
-                    signed<32> b = X[rs2][31: 0];
-                    if ((signed)X[rs1] <= a) X[rd] = a;
-                    else if ((signed)X[rs1] >= b) X[rd] = b;
+                    signed<32> b = (signed<32>)X[rs2][31: 0];
+                    if ((signed)X[rs1] <= a) X[rd] = (unsigned<XLEN>)a;
+                    else if ((signed)X[rs1] >= b) X[rd] = (unsigned<XLEN>)b;
                     else X[rd] = X[rs1];
                 }
             }
@@ -159,7 +161,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.addN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rs1] + X[rs2][31: 0]) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rs1] + X[rs2][31: 0]) >> Luimm5);
                 }
             }
         }
@@ -168,7 +170,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.adduN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rs1] + X[rs2][31: 0]) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rs1] + X[rs2][31: 0]) >> Luimm5);
                 }
             }
         }
@@ -177,7 +179,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.addRN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rs1] + X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rs1] + X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5);
                 }
             }
         }
@@ -186,7 +188,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.adduRN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rs1] + X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rs1] + X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5);
                 }
             }
         }
@@ -195,7 +197,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rs1] - X[rs2][31: 0]) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rs1] - X[rs2][31: 0]) >> Luimm5);
                 }
             }
         }
@@ -204,7 +206,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subuN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rs1] - X[rs2][31: 0]) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rs1] - X[rs2][31: 0]) >> Luimm5);
                 }
             }
         }
@@ -213,7 +215,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subRN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rs1] - X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rs1] - X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5);
                 }
             }
         }
@@ -222,7 +224,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subuRN", "{name(rd)}, {name(rs1)}, {name(rs2)}, {Luimm5}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rs1] - X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5;
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rs1] - X[rs2][31: 0] + (1 << (Luimm5 - 1))) >> Luimm5);
                 }
             }
         }
@@ -232,7 +234,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.addNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rd] + X[rs1]) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rd] + X[rs1]) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
@@ -241,7 +243,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.adduNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rd] + X[rs1]) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rd] + X[rs1]) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
@@ -250,7 +252,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.addRNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rd] + X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rd] + X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
@@ -259,7 +261,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.adduRNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rd] + X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rd] + X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
@@ -268,7 +270,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rd] - X[rs1]) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rd] - X[rs1]) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
@@ -277,7 +279,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subuNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rd] - X[rs1]) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rd] - X[rs1]) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
@@ -286,7 +288,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subRNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (signed)(X[rd] - X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((signed)(X[rd] - X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
@@ -295,7 +297,7 @@ InstructionSet XCoreVAlu extends RISCVBase {
             assembly: {"cv.subuRNr", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd] = (unsigned)(X[rd] - X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0];
+                    X[rd] = (unsigned<XLEN>)((unsigned)(X[rd] - X[rs1] + (1 << (X[rs2][31: 0][4:0] - 1))) >> X[rs2][31: 0][4:0]);
                 }
             }
         }
