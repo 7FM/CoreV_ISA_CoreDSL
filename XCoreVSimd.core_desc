@@ -5,6 +5,15 @@ InstructionSet XCoreVSimd {
       register unsigned<XLEN> X[RFS] [[is_main_reg]];
     }
 
+    functions {
+        unsigned<32> pack2(unsigned<16> a, unsigned<16> b) {
+            return b :: a;
+        }
+        unsigned<32> pack4(unsigned<8> a, unsigned<8> b, unsigned<8> c, unsigned<8> d) {
+            return d :: c :: b :: a;
+        }
+    }
+
     instructions {
         // SOURCE FILE: instr_srcs/XCoreVSIMD_ALU.txt
         CV_ADD_H {
@@ -12,8 +21,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] + X[rs2][15: 0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] + X[rs2][31:16])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] + X[rs2][15: 0])[15:0], 
+                                  (X[rs1][31:16] + X[rs2][31:16])[15:0]);
                 }
             }
         }
@@ -22,8 +31,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] + X[rs2][15:0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] + X[rs2][15:0])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] + X[rs2][15:0])[15:0],
+                                  (X[rs1][31:16] + X[rs2][15:0])[15:0]);
                 }
             }
         }
@@ -32,8 +41,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] + ((unsigned<16>)((signed)Imm6)))[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] + ((unsigned<16>)((signed)Imm6)))[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] + ((unsigned<16>)((signed)Imm6)))[15:0],
+                                  (X[rs1][31:16] + ((unsigned<16>)((signed)Imm6)))[15:0]);
                 }
             }
         }
@@ -42,10 +51,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] + X[rs2][ 7: 0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] + X[rs2][15: 8])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] + X[rs2][23:16])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] + X[rs2][31:24])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] + X[rs2][ 7: 0])[7:0],
+                                  (X[rs1][15: 8] + X[rs2][15: 8])[7:0],
+                                  (X[rs1][23:16] + X[rs2][23:16])[7:0],
+                                  (X[rs1][31:24] + X[rs2][31:24])[7:0]);
                 }
             }
         }
@@ -54,10 +63,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] + X[rs2][7:0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] + X[rs2][7:0])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] + X[rs2][7:0])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] + X[rs2][7:0])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] + X[rs2][7:0])[7:0],
+                                  (X[rs1][15: 8] + X[rs2][7:0])[7:0],
+                                  (X[rs1][23:16] + X[rs2][7:0])[7:0],
+                                  (X[rs1][31:24] + X[rs2][7:0])[7:0]);
                 }
             }
         }
@@ -66,10 +75,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] + ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] + ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] + ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] + ((unsigned<8>)((signed)Imm6)))[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] + ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][15: 8] + ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][23:16] + ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][31:24] + ((unsigned<8>)((signed)Imm6)))[7:0]);
                 }
             }
         }
@@ -78,8 +87,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] - X[rs2][15: 0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] - X[rs2][31:16])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] - X[rs2][15: 0])[15:0],
+                                  (X[rs1][31:16] - X[rs2][31:16])[15:0]);
                 }
             }
         }
@@ -88,8 +97,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] - X[rs2][15:0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] - X[rs2][15:0])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] - X[rs2][15:0])[15:0],
+                                  (X[rs1][31:16] - X[rs2][15:0])[15:0]);
                 }
             }
         }
@@ -98,8 +107,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] - ((unsigned<16>)((signed)Imm6)))[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] - ((unsigned<16>)((signed)Imm6)))[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] - ((unsigned<16>)((signed)Imm6)))[15:0],
+                                  (X[rs1][31:16] - ((unsigned<16>)((signed)Imm6)))[15:0]);
                 }
             }
         }
@@ -108,10 +117,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] - X[rs2][ 7: 0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] - X[rs2][15: 8])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] - X[rs2][23:16])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] - X[rs2][31:24])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] - X[rs2][ 7: 0])[7:0],
+                                  (X[rs1][15: 8] - X[rs2][15: 8])[7:0],
+                                  (X[rs1][23:16] - X[rs2][23:16])[7:0],
+                                  (X[rs1][31:24] - X[rs2][31:24])[7:0]);
                 }
             }
         }
@@ -120,10 +129,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] - X[rs2][7:0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] - X[rs2][7:0])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] - X[rs2][7:0])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] - X[rs2][7:0])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] - X[rs2][7:0])[7:0],
+                                  (X[rs1][15: 8] - X[rs2][7:0])[7:0],
+                                  (X[rs1][23:16] - X[rs2][7:0])[7:0],
+                                  (X[rs1][31:24] - X[rs2][7:0])[7:0]);
                 }
             }
         }
@@ -132,10 +141,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] - ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] - ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] - ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] - ((unsigned<8>)((signed)Imm6)))[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] - ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][15: 8] - ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][23:16] - ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][31:24] - ((unsigned<8>)((signed)Imm6)))[7:0]);
                 }
             }
         }
@@ -144,8 +153,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avg.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 1)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 1)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 1)[15:0],
+                                  ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 1)[15:0]);
                 }
             }
         }
@@ -154,8 +163,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avg.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] + X[rs2][15:0]) >> 1)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] + X[rs2][15:0]) >> 1)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] + X[rs2][15:0]) >> 1)[15:0],
+                                  ((signed)(X[rs1][31:16] + X[rs2][15:0]) >> 1)[15:0]);
                 }
             }
         }
@@ -164,8 +173,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avg.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] + ((unsigned<16>)((signed)Imm6))) >> 1)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] + ((unsigned<16>)((signed)Imm6))) >> 1)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] + ((unsigned<16>)((signed)Imm6))) >> 1)[15:0],
+                                  ((signed)(X[rs1][31:16] + ((unsigned<16>)((signed)Imm6))) >> 1)[15:0]);
                 }
             }
         }
@@ -174,10 +183,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avg.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)(X[rs1][ 7: 0] + X[rs2][ 7: 0]) >> 1)[7:0];
-                    X[rd][15: 8] = ((signed)(X[rs1][15: 8] + X[rs2][15: 8]) >> 1)[7:0];
-                    X[rd][23:16] = ((signed)(X[rs1][23:16] + X[rs2][23:16]) >> 1)[7:0];
-                    X[rd][31:24] = ((signed)(X[rs1][31:24] + X[rs2][31:24]) >> 1)[7:0];
+                    X[rd] = pack4(((signed)(X[rs1][ 7: 0] + X[rs2][ 7: 0]) >> 1)[7:0],
+                                  ((signed)(X[rs1][15: 8] + X[rs2][15: 8]) >> 1)[7:0],
+                                  ((signed)(X[rs1][23:16] + X[rs2][23:16]) >> 1)[7:0],
+                                  ((signed)(X[rs1][31:24] + X[rs2][31:24]) >> 1)[7:0]);
                 }
             }
         }
@@ -186,10 +195,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avg.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)(X[rs1][ 7: 0] + X[rs2][7:0]) >> 1)[7:0];
-                    X[rd][15: 8] = ((signed)(X[rs1][15: 8] + X[rs2][7:0]) >> 1)[7:0];
-                    X[rd][23:16] = ((signed)(X[rs1][23:16] + X[rs2][7:0]) >> 1)[7:0];
-                    X[rd][31:24] = ((signed)(X[rs1][31:24] + X[rs2][7:0]) >> 1)[7:0];
+                    X[rd] = pack4(((signed)(X[rs1][ 7: 0] + X[rs2][7:0]) >> 1)[7:0],
+                                  ((signed)(X[rs1][15: 8] + X[rs2][7:0]) >> 1)[7:0],
+                                  ((signed)(X[rs1][23:16] + X[rs2][7:0]) >> 1)[7:0],
+                                  ((signed)(X[rs1][31:24] + X[rs2][7:0]) >> 1)[7:0]);
                 }
             }
         }
@@ -198,10 +207,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avg.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)(X[rs1][ 7: 0] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0];
-                    X[rd][15: 8] = ((signed)(X[rs1][15: 8] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0];
-                    X[rd][23:16] = ((signed)(X[rs1][23:16] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0];
-                    X[rd][31:24] = ((signed)(X[rs1][31:24] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0];
+                    X[rd] = pack4(((signed)(X[rs1][ 7: 0] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0],
+                                  ((signed)(X[rs1][15: 8] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0],
+                                  ((signed)(X[rs1][23:16] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0],
+                                  ((signed)(X[rs1][31:24] + ((unsigned<8>)((signed)Imm6))) >> 1)[7:0]);
                 }
             }
         }
@@ -210,8 +219,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avgu.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)(X[rs1][15: 0] + X[rs2][15: 0]) >> 1)[15:0];
-                    X[rd][31:16] = ((unsigned)(X[rs1][31:16] + X[rs2][31:16]) >> 1)[15:0];
+                    X[rd] = pack2(((unsigned)(X[rs1][15: 0] + X[rs2][15: 0]) >> 1)[15:0],
+                                  ((unsigned)(X[rs1][31:16] + X[rs2][31:16]) >> 1)[15:0]);
                 }
             }
         }
@@ -220,8 +229,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avgu.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)(X[rs1][15: 0] + X[rs2][15:0]) >> 1)[15:0];
-                    X[rd][31:16] = ((unsigned)(X[rs1][31:16] + X[rs2][15:0]) >> 1)[15:0];
+                    X[rd] = pack2(((unsigned)(X[rs1][15: 0] + X[rs2][15:0]) >> 1)[15:0],
+                                  ((unsigned)(X[rs1][31:16] + X[rs2][15:0]) >> 1)[15:0]);
                 }
             }
         }
@@ -230,8 +239,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avgu.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)(X[rs1][15: 0] + ((unsigned<16>)Imm6)) >> 1)[15:0];
-                    X[rd][31:16] = ((unsigned)(X[rs1][31:16] + ((unsigned<16>)Imm6)) >> 1)[15:0];
+                    X[rd] = pack2(((unsigned)(X[rs1][15: 0] + ((unsigned<16>)Imm6)) >> 1)[15:0],
+                                  ((unsigned)(X[rs1][31:16] + ((unsigned<16>)Imm6)) >> 1)[15:0]);
                 }
             }
         }
@@ -240,10 +249,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avgu.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)(X[rs1][ 7: 0] + X[rs2][ 7: 0]) >> 1)[7:0];
-                    X[rd][15: 8] = ((unsigned)(X[rs1][15: 8] + X[rs2][15: 8]) >> 1)[7:0];
-                    X[rd][23:16] = ((unsigned)(X[rs1][23:16] + X[rs2][23:16]) >> 1)[7:0];
-                    X[rd][31:24] = ((unsigned)(X[rs1][31:24] + X[rs2][31:24]) >> 1)[7:0];
+                    X[rd] = pack4(((unsigned)(X[rs1][ 7: 0] + X[rs2][ 7: 0]) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][15: 8] + X[rs2][15: 8]) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][23:16] + X[rs2][23:16]) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][31:24] + X[rs2][31:24]) >> 1)[7:0]);
                 }
             }
         }
@@ -252,10 +261,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avgu.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)(X[rs1][ 7: 0] + X[rs2][7:0]) >> 1)[7:0];
-                    X[rd][15: 8] = ((unsigned)(X[rs1][15: 8] + X[rs2][7:0]) >> 1)[7:0];
-                    X[rd][23:16] = ((unsigned)(X[rs1][23:16] + X[rs2][7:0]) >> 1)[7:0];
-                    X[rd][31:24] = ((unsigned)(X[rs1][31:24] + X[rs2][7:0]) >> 1)[7:0];
+                    X[rd] = pack4(((unsigned)(X[rs1][ 7: 0] + X[rs2][7:0]) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][15: 8] + X[rs2][7:0]) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][23:16] + X[rs2][7:0]) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][31:24] + X[rs2][7:0]) >> 1)[7:0]);
                 }
             }
         }
@@ -264,10 +273,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.avgu.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)(X[rs1][ 7: 0] + ((unsigned<8>)Imm6)) >> 1)[7:0];
-                    X[rd][15: 8] = ((unsigned)(X[rs1][15: 8] + ((unsigned<8>)Imm6)) >> 1)[7:0];
-                    X[rd][23:16] = ((unsigned)(X[rs1][23:16] + ((unsigned<8>)Imm6)) >> 1)[7:0];
-                    X[rd][31:24] = ((unsigned)(X[rs1][31:24] + ((unsigned<8>)Imm6)) >> 1)[7:0];
+                    X[rd] = pack4(((unsigned)(X[rs1][ 7: 0] + ((unsigned<8>)Imm6)) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][15: 8] + ((unsigned<8>)Imm6)) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][23:16] + ((unsigned<8>)Imm6)) >> 1)[7:0],
+                                  ((unsigned)(X[rs1][31:24] + ((unsigned<8>)Imm6)) >> 1)[7:0]);
                 }
             }
         }
@@ -276,8 +285,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.min.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)X[rs1][15: 0] < (signed)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0];
-                    X[rd][31:16] = ((signed)X[rs1][31:16] < (signed)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16];
+                    X[rd] = pack2(((signed)X[rs1][15: 0] < (signed)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0],
+                                  ((signed)X[rs1][31:16] < (signed)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16]);
                 }
             }
         }
@@ -286,8 +295,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.min.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)X[rs1][15: 0] < (signed)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0];
-                    X[rd][31:16] = ((signed)X[rs1][31:16] < (signed)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0];
+                    X[rd] = pack2(((signed)X[rs1][15: 0] < (signed)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0],
+                                  ((signed)X[rs1][31:16] < (signed)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0]);
                 }
             }
         }
@@ -296,8 +305,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.min.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)X[rs1][15: 0] < (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][15: 0] : ((unsigned<16>)((signed)Imm6));
-                    X[rd][31:16] = ((signed)X[rs1][31:16] < (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][31:16] : ((unsigned<16>)((signed)Imm6));
+                    X[rd] = pack2(((signed)X[rs1][15: 0] < (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][15: 0] : ((unsigned<16>)((signed)Imm6)),
+                                  ((signed)X[rs1][31:16] < (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][31:16] : ((unsigned<16>)((signed)Imm6)));
                 }
             }
         }
@@ -306,10 +315,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.min.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)X[rs1][ 7: 0] < (signed)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0];
-                    X[rd][15: 8] = ((signed)X[rs1][15: 8] < (signed)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8];
-                    X[rd][23:16] = ((signed)X[rs1][23:16] < (signed)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16];
-                    X[rd][31:24] = ((signed)X[rs1][31:24] < (signed)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24];
+                    X[rd] = pack4(((signed)X[rs1][ 7: 0] < (signed)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0],
+                                  ((signed)X[rs1][15: 8] < (signed)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8],
+                                  ((signed)X[rs1][23:16] < (signed)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16],
+                                  ((signed)X[rs1][31:24] < (signed)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24]);
                 }
             }
         }
@@ -318,10 +327,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.min.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)X[rs1][ 7: 0] < (signed)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0];
-                    X[rd][15: 8] = ((signed)X[rs1][15: 8] < (signed)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0];
-                    X[rd][23:16] = ((signed)X[rs1][23:16] < (signed)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0];
-                    X[rd][31:24] = ((signed)X[rs1][31:24] < (signed)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0];
+                    X[rd] = pack4(((signed)X[rs1][ 7: 0] < (signed)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0],
+                                  ((signed)X[rs1][15: 8] < (signed)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0],
+                                  ((signed)X[rs1][23:16] < (signed)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0],
+                                  ((signed)X[rs1][31:24] < (signed)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0]);
                 }
             }
         }
@@ -330,10 +339,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.min.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)X[rs1][ 7: 0] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][ 7: 0] : ((unsigned<8>)((signed)Imm6));
-                    X[rd][15: 8] = ((signed)X[rs1][15: 8] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][15: 8] : ((unsigned<8>)((signed)Imm6));
-                    X[rd][23:16] = ((signed)X[rs1][23:16] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][23:16] : ((unsigned<8>)((signed)Imm6));
-                    X[rd][31:24] = ((signed)X[rs1][31:24] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][31:24] : ((unsigned<8>)((signed)Imm6));
+                    X[rd] = pack4(((signed)X[rs1][ 7: 0] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][ 7: 0] : ((unsigned<8>)((signed)Imm6)),
+                                  ((signed)X[rs1][15: 8] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][15: 8] : ((unsigned<8>)((signed)Imm6)),
+                                  ((signed)X[rs1][23:16] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][23:16] : ((unsigned<8>)((signed)Imm6)),
+                                  ((signed)X[rs1][31:24] < (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][31:24] : ((unsigned<8>)((signed)Imm6)));
                 }
             }
         }
@@ -342,8 +351,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.minu.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0];
-                    X[rd][31:16] = ((unsigned)X[rs1][31:16] < (unsigned)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16];
+                    X[rd] = pack2(((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0],
+                                  ((unsigned)X[rs1][31:16] < (unsigned)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16]);
                 }
             }
         }
@@ -352,8 +361,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.minu.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0];
-                    X[rd][31:16] = ((unsigned)X[rs1][31:16] < (unsigned)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0];
+                    X[rd] = pack2(((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0],
+                                  ((unsigned)X[rs1][31:16] < (unsigned)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0]);
                 }
             }
         }
@@ -362,8 +371,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.minu.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)X[rs1][15: 0] < (unsigned)((unsigned<16>)Imm6)) ? X[rs1][15: 0] : ((unsigned<16>)Imm6);
-                    X[rd][31:16] = ((unsigned)X[rs1][31:16] < (unsigned)((unsigned<16>)Imm6)) ? X[rs1][31:16] : ((unsigned<16>)Imm6);
+                    X[rd] = pack2(((unsigned)X[rs1][15: 0] < (unsigned)((unsigned<16>)Imm6)) ? X[rs1][15: 0] : ((unsigned<16>)Imm6),
+                                  ((unsigned)X[rs1][31:16] < (unsigned)((unsigned<16>)Imm6)) ? X[rs1][31:16] : ((unsigned<16>)Imm6));
                 }
             }
         }
@@ -372,10 +381,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.minu.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0];
-                    X[rd][15: 8] = ((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8];
-                    X[rd][23:16] = ((unsigned)X[rs1][23:16] < (unsigned)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16];
-                    X[rd][31:24] = ((unsigned)X[rs1][31:24] < (unsigned)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24];
+                    X[rd] = pack4(((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0],
+                                  ((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8],
+                                  ((unsigned)X[rs1][23:16] < (unsigned)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16],
+                                  ((unsigned)X[rs1][31:24] < (unsigned)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24]);
                 }
             }
         }
@@ -384,10 +393,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.minu.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0];
-                    X[rd][15: 8] = ((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0];
-                    X[rd][23:16] = ((unsigned)X[rs1][23:16] < (unsigned)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0];
-                    X[rd][31:24] = ((unsigned)X[rs1][31:24] < (unsigned)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0];
+                    X[rd] = pack4(((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0],
+                                  ((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0],
+                                  ((unsigned)X[rs1][23:16] < (unsigned)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0],
+                                  ((unsigned)X[rs1][31:24] < (unsigned)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0]);
                 }
             }
         }
@@ -396,10 +405,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.minu.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)X[rs1][ 7: 0] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][ 7: 0] : ((unsigned<8>)Imm6);
-                    X[rd][15: 8] = ((unsigned)X[rs1][15: 8] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][15: 8] : ((unsigned<8>)Imm6);
-                    X[rd][23:16] = ((unsigned)X[rs1][23:16] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][23:16] : ((unsigned<8>)Imm6);
-                    X[rd][31:24] = ((unsigned)X[rs1][31:24] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][31:24] : ((unsigned<8>)Imm6);
+                    X[rd] = pack4(((unsigned)X[rs1][ 7: 0] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][ 7: 0] : ((unsigned<8>)Imm6),
+                                  ((unsigned)X[rs1][15: 8] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][15: 8] : ((unsigned<8>)Imm6),
+                                  ((unsigned)X[rs1][23:16] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][23:16] : ((unsigned<8>)Imm6),
+                                  ((unsigned)X[rs1][31:24] < (unsigned)((unsigned<8>)Imm6)) ? X[rs1][31:24] : ((unsigned<8>)Imm6));
                 }
             }
         }
@@ -408,8 +417,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.max.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)X[rs1][15: 0] > (signed)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0];
-                    X[rd][31:16] = ((signed)X[rs1][31:16] > (signed)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16];
+                    X[rd] = pack2(((signed)X[rs1][15: 0] > (signed)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0],
+                                  ((signed)X[rs1][31:16] > (signed)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16]);
                 }
             }
         }
@@ -418,8 +427,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.max.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)X[rs1][15: 0] > (signed)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0];
-                    X[rd][31:16] = ((signed)X[rs1][31:16] > (signed)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0];
+                    X[rd] = pack2(((signed)X[rs1][15: 0] > (signed)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0],
+                                  ((signed)X[rs1][31:16] > (signed)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0]);
                 }
             }
         }
@@ -428,8 +437,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.max.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)X[rs1][15: 0] > (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][15: 0] : ((unsigned<16>)((signed)Imm6));
-                    X[rd][31:16] = ((signed)X[rs1][31:16] > (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][31:16] : ((unsigned<16>)((signed)Imm6));
+                    X[rd] = pack2(((signed)X[rs1][15: 0] > (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][15: 0] : ((unsigned<16>)((signed)Imm6)),
+                                  ((signed)X[rs1][31:16] > (signed)((unsigned<16>)((signed)Imm6))) ? X[rs1][31:16] : ((unsigned<16>)((signed)Imm6)));
                 }
             }
         }
@@ -438,10 +447,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.max.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)X[rs1][ 7: 0] > (signed)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0];
-                    X[rd][15: 8] = ((signed)X[rs1][15: 8] > (signed)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8];
-                    X[rd][23:16] = ((signed)X[rs1][23:16] > (signed)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16];
-                    X[rd][31:24] = ((signed)X[rs1][31:24] > (signed)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24];
+                    X[rd] = pack4(((signed)X[rs1][ 7: 0] > (signed)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0],
+                                  ((signed)X[rs1][15: 8] > (signed)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8],
+                                  ((signed)X[rs1][23:16] > (signed)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16],
+                                  ((signed)X[rs1][31:24] > (signed)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24]);
                 }
             }
         }
@@ -450,10 +459,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.max.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)X[rs1][ 7: 0] > (signed)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0];
-                    X[rd][15: 8] = ((signed)X[rs1][15: 8] > (signed)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0];
-                    X[rd][23:16] = ((signed)X[rs1][23:16] > (signed)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0];
-                    X[rd][31:24] = ((signed)X[rs1][31:24] > (signed)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0];
+                    X[rd] = pack4(((signed)X[rs1][ 7: 0] > (signed)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0],
+                                  ((signed)X[rs1][15: 8] > (signed)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0],
+                                  ((signed)X[rs1][23:16] > (signed)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0],
+                                  ((signed)X[rs1][31:24] > (signed)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0]);
                 }
             }
         }
@@ -462,10 +471,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.max.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)X[rs1][ 7: 0] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][ 7: 0] : ((unsigned<8>)((signed)Imm6));
-                    X[rd][15: 8] = ((signed)X[rs1][15: 8] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][15: 8] : ((unsigned<8>)((signed)Imm6));
-                    X[rd][23:16] = ((signed)X[rs1][23:16] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][23:16] : ((unsigned<8>)((signed)Imm6));
-                    X[rd][31:24] = ((signed)X[rs1][31:24] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][31:24] : ((unsigned<8>)((signed)Imm6));
+                    X[rd] = pack4(((signed)X[rs1][ 7: 0] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][ 7: 0] : ((unsigned<8>)((signed)Imm6)),
+                                  ((signed)X[rs1][15: 8] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][15: 8] : ((unsigned<8>)((signed)Imm6)),
+                                  ((signed)X[rs1][23:16] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][23:16] : ((unsigned<8>)((signed)Imm6)),
+                                  ((signed)X[rs1][31:24] > (signed)((unsigned<8>)((signed)Imm6))) ? X[rs1][31:24] : ((unsigned<8>)((signed)Imm6)));
                 }
             }
         }
@@ -474,8 +483,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.maxu.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0];
-                    X[rd][31:16] = ((unsigned)X[rs1][31:16] > (unsigned)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16];
+                    X[rd] = pack2(((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15: 0]) ? X[rs1][15: 0] : X[rs2][15: 0],
+                                  ((unsigned)X[rs1][31:16] > (unsigned)X[rs2][31:16]) ? X[rs1][31:16] : X[rs2][31:16]);
                 }
             }
         }
@@ -484,8 +493,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.maxu.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0];
-                    X[rd][31:16] = ((unsigned)X[rs1][31:16] > (unsigned)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0];
+                    X[rd] = pack2(((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15:0]) ? X[rs1][15: 0] : X[rs2][15:0],
+                                  ((unsigned)X[rs1][31:16] > (unsigned)X[rs2][15:0]) ? X[rs1][31:16] : X[rs2][15:0]);
                 }
             }
         }
@@ -494,8 +503,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.maxu.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((unsigned)X[rs1][15: 0] > (unsigned)((unsigned<16>)Imm6)) ? X[rs1][15: 0] : ((unsigned<16>)Imm6);
-                    X[rd][31:16] = ((unsigned)X[rs1][31:16] > (unsigned)((unsigned<16>)Imm6)) ? X[rs1][31:16] : ((unsigned<16>)Imm6);
+                    X[rd] = pack2(((unsigned)X[rs1][15: 0] > (unsigned)((unsigned<16>)Imm6)) ? X[rs1][15: 0] : ((unsigned<16>)Imm6),
+                                  ((unsigned)X[rs1][31:16] > (unsigned)((unsigned<16>)Imm6)) ? X[rs1][31:16] : ((unsigned<16>)Imm6));
                 }
             }
         }
@@ -504,10 +513,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.maxu.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0];
-                    X[rd][15: 8] = ((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8];
-                    X[rd][23:16] = ((unsigned)X[rs1][23:16] > (unsigned)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16];
-                    X[rd][31:24] = ((unsigned)X[rs1][31:24] > (unsigned)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24];
+                    X[rd] = pack4(((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][ 7: 0]) ? X[rs1][ 7: 0] : X[rs2][ 7: 0],
+                                  ((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][15: 8]) ? X[rs1][15: 8] : X[rs2][15: 8],
+                                  ((unsigned)X[rs1][23:16] > (unsigned)X[rs2][23:16]) ? X[rs1][23:16] : X[rs2][23:16],
+                                  ((unsigned)X[rs1][31:24] > (unsigned)X[rs2][31:24]) ? X[rs1][31:24] : X[rs2][31:24]);
                 }
             }
         }
@@ -516,10 +525,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.maxu.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0];
-                    X[rd][15: 8] = ((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0];
-                    X[rd][23:16] = ((unsigned)X[rs1][23:16] > (unsigned)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0];
-                    X[rd][31:24] = ((unsigned)X[rs1][31:24] > (unsigned)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0];
+                    X[rd] = pack4(((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][7:0]) ? X[rs1][ 7: 0] : X[rs2][7:0],
+                                  ((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][7:0]) ? X[rs1][15: 8] : X[rs2][7:0],
+                                  ((unsigned)X[rs1][23:16] > (unsigned)X[rs2][7:0]) ? X[rs1][23:16] : X[rs2][7:0],
+                                  ((unsigned)X[rs1][31:24] > (unsigned)X[rs2][7:0]) ? X[rs1][31:24] : X[rs2][7:0]);
                 }
             }
         }
@@ -528,10 +537,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.maxu.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((unsigned)X[rs1][ 7: 0] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][ 7: 0] : ((unsigned<8>)Imm6);
-                    X[rd][15: 8] = ((unsigned)X[rs1][15: 8] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][15: 8] : ((unsigned<8>)Imm6);
-                    X[rd][23:16] = ((unsigned)X[rs1][23:16] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][23:16] : ((unsigned<8>)Imm6);
-                    X[rd][31:24] = ((unsigned)X[rs1][31:24] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][31:24] : ((unsigned<8>)Imm6);
+                    X[rd] = pack4(((unsigned)X[rs1][ 7: 0] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][ 7: 0] : ((unsigned<8>)Imm6),
+                                  ((unsigned)X[rs1][15: 8] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][15: 8] : ((unsigned<8>)Imm6),
+                                  ((unsigned)X[rs1][23:16] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][23:16] : ((unsigned<8>)Imm6),
+                                  ((unsigned)X[rs1][31:24] > (unsigned)((unsigned<8>)Imm6)) ? X[rs1][31:24] : ((unsigned<8>)Imm6));
                 }
             }
         }
@@ -540,8 +549,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.srl.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned)X[rs1][15: 0] >> (X[rs2][15: 0]);
-                    X[rd][31:16] = (unsigned)X[rs1][31:16] >> (X[rs2][31:16]);
+                    X[rd] = pack2((unsigned)X[rs1][15: 0] >> (X[rs2][15: 0]),
+                                  (unsigned)X[rs1][31:16] >> (X[rs2][31:16]));
                 }
             }
         }
@@ -550,8 +559,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.srl.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned)X[rs1][15: 0] >> (X[rs2][15:0]);
-                    X[rd][31:16] = (unsigned)X[rs1][31:16] >> (X[rs2][15:0]);
+                    X[rd] = pack2((unsigned)X[rs1][15: 0] >> (X[rs2][15:0]),
+                                  (unsigned)X[rs1][31:16] >> (X[rs2][15:0]));
                 }
             }
         }
@@ -560,8 +569,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.srl.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned)X[rs1][15: 0] >> (((unsigned<16>)Imm6));
-                    X[rd][31:16] = (unsigned)X[rs1][31:16] >> (((unsigned<16>)Imm6));
+                    X[rd] = pack2((unsigned)X[rs1][15: 0] >> (((unsigned<16>)Imm6)),
+                                  (unsigned)X[rs1][31:16] >> (((unsigned<16>)Imm6)));
                 }
             }
         }
@@ -570,10 +579,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.srl.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned)X[rs1][ 7: 0] >> (X[rs2][ 7: 0]);
-                    X[rd][15: 8] = (unsigned)X[rs1][15: 8] >> (X[rs2][15: 8]);
-                    X[rd][23:16] = (unsigned)X[rs1][23:16] >> (X[rs2][23:16]);
-                    X[rd][31:24] = (unsigned)X[rs1][31:24] >> (X[rs2][31:24]);
+                    X[rd] = pack4((unsigned)X[rs1][ 7: 0] >> (X[rs2][ 7: 0]),
+                                  (unsigned)X[rs1][15: 8] >> (X[rs2][15: 8]),
+                                  (unsigned)X[rs1][23:16] >> (X[rs2][23:16]),
+                                  (unsigned)X[rs1][31:24] >> (X[rs2][31:24]));
                 }
             }
         }
@@ -582,10 +591,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.srl.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned)X[rs1][ 7: 0] >> (X[rs2][7:0]);
-                    X[rd][15: 8] = (unsigned)X[rs1][15: 8] >> (X[rs2][7:0]);
-                    X[rd][23:16] = (unsigned)X[rs1][23:16] >> (X[rs2][7:0]);
-                    X[rd][31:24] = (unsigned)X[rs1][31:24] >> (X[rs2][7:0]);
+                    X[rd] = pack4((unsigned)X[rs1][ 7: 0] >> (X[rs2][7:0]),
+                                  (unsigned)X[rs1][15: 8] >> (X[rs2][7:0]),
+                                  (unsigned)X[rs1][23:16] >> (X[rs2][7:0]),
+                                  (unsigned)X[rs1][31:24] >> (X[rs2][7:0]));
                 }
             }
         }
@@ -594,10 +603,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.srl.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned)X[rs1][ 7: 0] >> (((unsigned<8>)Imm6));
-                    X[rd][15: 8] = (unsigned)X[rs1][15: 8] >> (((unsigned<8>)Imm6));
-                    X[rd][23:16] = (unsigned)X[rs1][23:16] >> (((unsigned<8>)Imm6));
-                    X[rd][31:24] = (unsigned)X[rs1][31:24] >> (((unsigned<8>)Imm6));
+                    X[rd] = pack4((unsigned)X[rs1][ 7: 0] >> (((unsigned<8>)Imm6)),
+                                  (unsigned)X[rs1][15: 8] >> (((unsigned<8>)Imm6)),
+                                  (unsigned)X[rs1][23:16] >> (((unsigned<8>)Imm6)),
+                                  (unsigned)X[rs1][31:24] >> (((unsigned<8>)Imm6)));
                 }
             }
         }
@@ -606,8 +615,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sra.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)X[rs1][15: 0] >> (X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)X[rs1][31:16] >> (X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)X[rs1][15: 0] >> (X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)X[rs1][31:16] >> (X[rs2][31:16])));
                 }
             }
         }
@@ -616,8 +625,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sra.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)X[rs1][15: 0] >> (X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)X[rs1][31:16] >> (X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)X[rs1][15: 0] >> (X[rs2][15:0])),
+                                  (unsigned<16>)((signed)X[rs1][31:16] >> (X[rs2][15:0])));
                 }
             }
         }
@@ -626,8 +635,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sra.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)X[rs1][15: 0] >> (((unsigned<16>)Imm6)));
-                    X[rd][31:16] = (unsigned<16>)((signed)X[rs1][31:16] >> (((unsigned<16>)Imm6)));
+                    X[rd] = pack2((unsigned<16>)((signed)X[rs1][15: 0] >> (((unsigned<16>)Imm6))),
+                                  (unsigned<16>)((signed)X[rs1][31:16] >> (((unsigned<16>)Imm6))));
                 }
             }
         }
@@ -636,10 +645,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sra.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)X[rs1][ 7: 0] >> (X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)X[rs1][15: 8] >> (X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)X[rs1][23:16] >> (X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)X[rs1][31:24] >> (X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)X[rs1][ 7: 0] >> (X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)X[rs1][15: 8] >> (X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)X[rs1][23:16] >> (X[rs2][23:16])),
+                                  (unsigned<8>)((signed)X[rs1][31:24] >> (X[rs2][31:24])));
                 }
             }
         }
@@ -648,10 +657,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sra.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)X[rs1][ 7: 0] >> (X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)X[rs1][15: 8] >> (X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)X[rs1][23:16] >> (X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)X[rs1][31:24] >> (X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)X[rs1][ 7: 0] >> (X[rs2][7:0])),
+                                  (unsigned<8>)((signed)X[rs1][15: 8] >> (X[rs2][7:0])),
+                                  (unsigned<8>)((signed)X[rs1][23:16] >> (X[rs2][7:0])),
+                                  (unsigned<8>)((signed)X[rs1][31:24] >> (X[rs2][7:0])));
                 }
             }
         }
@@ -660,10 +669,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sra.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)X[rs1][ 7: 0] >> (((unsigned<8>)Imm6)));
-                    X[rd][15: 8] = (unsigned<8>)((signed)X[rs1][15: 8] >> (((unsigned<8>)Imm6)));
-                    X[rd][23:16] = (unsigned<8>)((signed)X[rs1][23:16] >> (((unsigned<8>)Imm6)));
-                    X[rd][31:24] = (unsigned<8>)((signed)X[rs1][31:24] >> (((unsigned<8>)Imm6)));
+                    X[rd] = pack4((unsigned<8>)((signed)X[rs1][ 7: 0] >> (((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)X[rs1][15: 8] >> (((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)X[rs1][23:16] >> (((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)X[rs1][31:24] >> (((unsigned<8>)Imm6))));
                 }
             }
         }
@@ -672,8 +681,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sll.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned)X[rs1][15: 0] << (X[rs2][15: 0]);
-                    X[rd][31:16] = (unsigned)X[rs1][31:16] << (X[rs2][31:16]);
+                    X[rd] = pack2((unsigned)X[rs1][15: 0] << (X[rs2][15: 0]),
+                                  (unsigned)X[rs1][31:16] << (X[rs2][31:16]));
                 }
             }
         }
@@ -682,8 +691,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sll.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned)X[rs1][15: 0] << (X[rs2][15:0]);
-                    X[rd][31:16] = (unsigned)X[rs1][31:16] << (X[rs2][15:0]);
+                    X[rd] = pack2((unsigned)X[rs1][15: 0] << (X[rs2][15:0]),
+                                  (unsigned)X[rs1][31:16] << (X[rs2][15:0]));
                 }
             }
         }
@@ -692,8 +701,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sll.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned)X[rs1][15: 0] << (((unsigned<16>)Imm6));
-                    X[rd][31:16] = (unsigned)X[rs1][31:16] << (((unsigned<16>)Imm6));
+                    X[rd] = pack2((unsigned)X[rs1][15: 0] << (((unsigned<16>)Imm6)),
+                                  (unsigned)X[rs1][31:16] << (((unsigned<16>)Imm6)));
                 }
             }
         }
@@ -702,10 +711,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sll.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned)X[rs1][ 7: 0] << (X[rs2][ 7: 0]);
-                    X[rd][15: 8] = (unsigned)X[rs1][15: 8] << (X[rs2][15: 8]);
-                    X[rd][23:16] = (unsigned)X[rs1][23:16] << (X[rs2][23:16]);
-                    X[rd][31:24] = (unsigned)X[rs1][31:24] << (X[rs2][31:24]);
+                    X[rd] = pack4((unsigned)X[rs1][ 7: 0] << (X[rs2][ 7: 0]),
+                                  (unsigned)X[rs1][15: 8] << (X[rs2][15: 8]),
+                                  (unsigned)X[rs1][23:16] << (X[rs2][23:16]),
+                                  (unsigned)X[rs1][31:24] << (X[rs2][31:24]));
                 }
             }
         }
@@ -714,10 +723,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sll.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned)X[rs1][ 7: 0] << (X[rs2][7:0]);
-                    X[rd][15: 8] = (unsigned)X[rs1][15: 8] << (X[rs2][7:0]);
-                    X[rd][23:16] = (unsigned)X[rs1][23:16] << (X[rs2][7:0]);
-                    X[rd][31:24] = (unsigned)X[rs1][31:24] << (X[rs2][7:0]);
+                    X[rd] = pack4((unsigned)X[rs1][ 7: 0] << (X[rs2][7:0]),
+                                  (unsigned)X[rs1][15: 8] << (X[rs2][7:0]),
+                                  (unsigned)X[rs1][23:16] << (X[rs2][7:0]),
+                                  (unsigned)X[rs1][31:24] << (X[rs2][7:0]));
                 }
             }
         }
@@ -726,10 +735,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sll.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned)X[rs1][ 7: 0] << (((unsigned<8>)Imm6));
-                    X[rd][15: 8] = (unsigned)X[rs1][15: 8] << (((unsigned<8>)Imm6));
-                    X[rd][23:16] = (unsigned)X[rs1][23:16] << (((unsigned<8>)Imm6));
-                    X[rd][31:24] = (unsigned)X[rs1][31:24] << (((unsigned<8>)Imm6));
+                    X[rd] = pack4((unsigned)X[rs1][ 7: 0] << (((unsigned<8>)Imm6)),
+                                  (unsigned)X[rs1][15: 8] << (((unsigned<8>)Imm6)),
+                                  (unsigned)X[rs1][23:16] << (((unsigned<8>)Imm6)),
+                                  (unsigned)X[rs1][31:24] << (((unsigned<8>)Imm6)));
                 }
             }
         }
@@ -738,8 +747,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.or.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] | X[rs2][15: 0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] | X[rs2][31:16])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] | X[rs2][15: 0])[15:0],
+                                  (X[rs1][31:16] | X[rs2][31:16])[15:0]);
                 }
             }
         }
@@ -748,8 +757,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.or.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] | X[rs2][15:0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] | X[rs2][15:0])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] | X[rs2][15:0])[15:0],
+                                  (X[rs1][31:16] | X[rs2][15:0])[15:0]);
                 }
             }
         }
@@ -758,8 +767,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.or.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] | ((unsigned<16>)((signed)Imm6)))[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] | ((unsigned<16>)((signed)Imm6)))[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] | ((unsigned<16>)((signed)Imm6)))[15:0],
+                                  (X[rs1][31:16] | ((unsigned<16>)((signed)Imm6)))[15:0]);
                 }
             }
         }
@@ -768,10 +777,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.or.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] | X[rs2][ 7: 0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] | X[rs2][15: 8])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] | X[rs2][23:16])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] | X[rs2][31:24])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] | X[rs2][ 7: 0])[7:0],
+                                  (X[rs1][15: 8] | X[rs2][15: 8])[7:0],
+                                  (X[rs1][23:16] | X[rs2][23:16])[7:0],
+                                  (X[rs1][31:24] | X[rs2][31:24])[7:0]);
                 }
             }
         }
@@ -780,10 +789,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.or.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] | X[rs2][7:0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] | X[rs2][7:0])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] | X[rs2][7:0])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] | X[rs2][7:0])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] | X[rs2][7:0])[7:0],
+                                  (X[rs1][15: 8] | X[rs2][7:0])[7:0],
+                                  (X[rs1][23:16] | X[rs2][7:0])[7:0],
+                                  (X[rs1][31:24] | X[rs2][7:0])[7:0]);
                 }
             }
         }
@@ -792,10 +801,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.or.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] | ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] | ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] | ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] | ((unsigned<8>)((signed)Imm6)))[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] | ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][15: 8] | ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][23:16] | ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][31:24] | ((unsigned<8>)((signed)Imm6)))[7:0]);
                 }
             }
         }
@@ -804,8 +813,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.xor.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] ^ X[rs2][15: 0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] ^ X[rs2][31:16])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] ^ X[rs2][15: 0])[15:0],
+                                  (X[rs1][31:16] ^ X[rs2][31:16])[15:0]);
                 }
             }
         }
@@ -814,8 +823,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.xor.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] ^ X[rs2][15:0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] ^ X[rs2][15:0])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] ^ X[rs2][15:0])[15:0],
+                                  (X[rs1][31:16] ^ X[rs2][15:0])[15:0]);
                 }
             }
         }
@@ -824,8 +833,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.xor.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] ^ ((unsigned<16>)((signed)Imm6)))[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] ^ ((unsigned<16>)((signed)Imm6)))[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] ^ ((unsigned<16>)((signed)Imm6)))[15:0],
+                                  (X[rs1][31:16] ^ ((unsigned<16>)((signed)Imm6)))[15:0]);
                 }
             }
         }
@@ -834,10 +843,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.xor.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] ^ X[rs2][ 7: 0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] ^ X[rs2][15: 8])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] ^ X[rs2][23:16])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] ^ X[rs2][31:24])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] ^ X[rs2][ 7: 0])[7:0],
+                                  (X[rs1][15: 8] ^ X[rs2][15: 8])[7:0],
+                                  (X[rs1][23:16] ^ X[rs2][23:16])[7:0],
+                                  (X[rs1][31:24] ^ X[rs2][31:24])[7:0]);
                 }
             }
         }
@@ -846,10 +855,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.xor.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] ^ X[rs2][7:0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] ^ X[rs2][7:0])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] ^ X[rs2][7:0])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] ^ X[rs2][7:0])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] ^ X[rs2][7:0])[7:0],
+                                  (X[rs1][15: 8] ^ X[rs2][7:0])[7:0],
+                                  (X[rs1][23:16] ^ X[rs2][7:0])[7:0],
+                                  (X[rs1][31:24] ^ X[rs2][7:0])[7:0]);
                 }
             }
         }
@@ -858,10 +867,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.xor.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] ^ ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] ^ ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] ^ ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] ^ ((unsigned<8>)((signed)Imm6)))[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] ^ ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][15: 8] ^ ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][23:16] ^ ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][31:24] ^ ((unsigned<8>)((signed)Imm6)))[7:0]);
                 }
             }
         }
@@ -870,8 +879,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.and.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] & X[rs2][15: 0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] & X[rs2][31:16])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] & X[rs2][15: 0])[15:0],
+                                  (X[rs1][31:16] & X[rs2][31:16])[15:0]);
                 }
             }
         }
@@ -880,8 +889,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.and.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] & X[rs2][15:0])[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] & X[rs2][15:0])[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] & X[rs2][15:0])[15:0],
+                                  (X[rs1][31:16] & X[rs2][15:0])[15:0]);
                 }
             }
         }
@@ -890,8 +899,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.and.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (X[rs1][15: 0] & ((unsigned<16>)((signed)Imm6)))[15:0];
-                    X[rd][31:16] = (X[rs1][31:16] & ((unsigned<16>)((signed)Imm6)))[15:0];
+                    X[rd] = pack2((X[rs1][15: 0] & ((unsigned<16>)((signed)Imm6)))[15:0],
+                                  (X[rs1][31:16] & ((unsigned<16>)((signed)Imm6)))[15:0]);
                 }
             }
         }
@@ -900,10 +909,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.and.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] & X[rs2][ 7: 0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] & X[rs2][15: 8])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] & X[rs2][23:16])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] & X[rs2][31:24])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] & X[rs2][ 7: 0])[7:0],
+                                  (X[rs1][15: 8] & X[rs2][15: 8])[7:0],
+                                  (X[rs1][23:16] & X[rs2][23:16])[7:0],
+                                  (X[rs1][31:24] & X[rs2][31:24])[7:0]);
                 }
             }
         }
@@ -912,10 +921,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.and.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] & X[rs2][7:0])[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] & X[rs2][7:0])[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] & X[rs2][7:0])[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] & X[rs2][7:0])[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] & X[rs2][7:0])[7:0],
+                                  (X[rs1][15: 8] & X[rs2][7:0])[7:0],
+                                  (X[rs1][23:16] & X[rs2][7:0])[7:0],
+                                  (X[rs1][31:24] & X[rs2][7:0])[7:0]);
                 }
             }
         }
@@ -924,10 +933,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.and.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (X[rs1][ 7: 0] & ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][15: 8] = (X[rs1][15: 8] & ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][23:16] = (X[rs1][23:16] & ((unsigned<8>)((signed)Imm6)))[7:0];
-                    X[rd][31:24] = (X[rs1][31:24] & ((unsigned<8>)((signed)Imm6)))[7:0];
+                    X[rd] = pack4((X[rs1][ 7: 0] & ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][15: 8] & ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][23:16] & ((unsigned<8>)((signed)Imm6)))[7:0],
+                                  (X[rs1][31:24] & ((unsigned<8>)((signed)Imm6)))[7:0]);
                 }
             }
         }
@@ -936,8 +945,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.abs.h", "{name(rd)}, {name(rs1)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)X[rs1][15: 0] < 0) ? (-X[rs1][15: 0])[16-1:0] : X[rs1][15: 0];
-                    X[rd][31:16] = ((signed)X[rs1][31:16] < 0) ? (-X[rs1][31:16])[16-1:0] : X[rs1][31:16];
+                    X[rd] = pack2(((signed)X[rs1][15: 0] < 0) ? (-X[rs1][15: 0])[16-1:0] : X[rs1][15: 0],
+                                  ((signed)X[rs1][31:16] < 0) ? (-X[rs1][31:16])[16-1:0] : X[rs1][31:16]);
                 }
             }
         }
@@ -946,10 +955,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.abs.b", "{name(rd)}, {name(rs1)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = ((signed)X[rs1][ 7: 0] < 0) ? (-X[rs1][ 7: 0])[8-1:0] : X[rs1][ 7: 0];
-                    X[rd][15: 8] = ((signed)X[rs1][15: 8] < 0) ? (-X[rs1][15: 8])[8-1:0] : X[rs1][15: 8];
-                    X[rd][23:16] = ((signed)X[rs1][23:16] < 0) ? (-X[rs1][23:16])[8-1:0] : X[rs1][23:16];
-                    X[rd][31:24] = ((signed)X[rs1][31:24] < 0) ? (-X[rs1][31:24])[8-1:0] : X[rs1][31:24];
+                    X[rd] = pack4(((signed)X[rs1][ 7: 0] < 0) ? (-X[rs1][ 7: 0])[8-1:0] : X[rs1][ 7: 0],
+                                  ((signed)X[rs1][15: 8] < 0) ? (-X[rs1][15: 8])[8-1:0] : X[rs1][15: 8],
+                                  ((signed)X[rs1][23:16] < 0) ? (-X[rs1][23:16])[8-1:0] : X[rs1][23:16],
+                                  ((signed)X[rs1][31:24] < 0) ? (-X[rs1][31:24])[8-1:0] : X[rs1][31:24]);
                 }
             }
         }
@@ -1398,8 +1407,8 @@ InstructionSet XCoreVSimd {
                 if (rd != 0) {
                     unsigned<5> offset1 = (unsigned<5>)(X[rs2][15: 0][0] * 16);
                     unsigned<5> offset2 = (unsigned<5>)(X[rs2][31:16][0] * 16);
-                    X[rd][15: 0] = X[rs1][offset1 + 15 : offset1 ];
-                    X[rd][31:16] = X[rs1][offset2 + 15 : offset2 ];
+                    X[rd] = pack2(X[rs1][offset1 + 15 : offset1 ],
+                                  X[rs1][offset2 + 15 : offset2 ]);
                 }
             }
         }
@@ -1410,8 +1419,8 @@ InstructionSet XCoreVSimd {
                 if (rd != 0) {
                     unsigned<5> offset1 = (unsigned<5>)(Imm6[0] * 16);
                     unsigned<5> offset2 = (unsigned<5>)(Imm6[1] * 16);
-                    X[rd][15: 0] = X[rs1][offset1 + 15 : offset1 ];
-                    X[rd][31:16] = X[rs1][offset2 + 15 : offset2 ];
+                    X[rd] = pack2(X[rs1][offset1 + 15 : offset1 ],
+                                  X[rs1][offset2 + 15 : offset2 ]);
                 }
             }
         }
@@ -1424,10 +1433,10 @@ InstructionSet XCoreVSimd {
                     unsigned<5> offset2 = (unsigned<5>)(X[rs2][15: 8][1:0] * 8);
                     unsigned<5> offset3 = (unsigned<5>)(X[rs2][23:16][1:0] * 8);
                     unsigned<5> offset4 = (unsigned<5>)(X[rs2][31:24][1:0] * 8);
-                    X[rd][ 7: 0] = X[rs1][offset1 + 7 : offset1 ];
-                    X[rd][15: 8] = X[rs1][offset2 + 7 : offset2 ];
-                    X[rd][23:16] = X[rs1][offset3 + 7 : offset3 ];
-                    X[rd][31:24] = X[rs1][offset4 + 7 : offset4 ];
+                    X[rd] = pack4(X[rs1][offset1 + 7 : offset1 ],
+                                  X[rs1][offset2 + 7 : offset2 ],
+                                  X[rs1][offset3 + 7 : offset3 ],
+                                  X[rs1][offset4 + 7 : offset4 ]);
                 }
             }
         }
@@ -1439,10 +1448,10 @@ InstructionSet XCoreVSimd {
                     unsigned<5> offset1 = (unsigned<5>)(Imm6[1:0] * 8);
                     unsigned<5> offset2 = (unsigned<5>)(Imm6[3:2] * 8);
                     unsigned<5> offset3 = (unsigned<5>)(Imm6[5:4] * 8);
-                    X[rd][ 7: 0] = X[rs1][offset1 + 7 : offset1 ];
-                    X[rd][15: 8] = X[rs1][offset2 + 7 : offset2 ];
-                    X[rd][23:16] = X[rs1][offset3 + 7 : offset3 ];
-                    X[rd][31:24] = X[rs1][ 7: 0];
+                    X[rd] = pack4(X[rs1][offset1 + 7 : offset1 ],
+                                  X[rs1][offset2 + 7 : offset2 ],
+                                  X[rs1][offset3 + 7 : offset3 ],
+                                  X[rs1][ 7: 0]);
                 }
             }
         }
@@ -1454,10 +1463,10 @@ InstructionSet XCoreVSimd {
                     unsigned<5> offset1 = (unsigned<5>)(Imm6[1:0] * 8);
                     unsigned<5> offset2 = (unsigned<5>)(Imm6[3:2] * 8);
                     unsigned<5> offset3 = (unsigned<5>)(Imm6[5:4] * 8);
-                    X[rd][ 7: 0] = X[rs1][offset1 + 7 : offset1 ];
-                    X[rd][15: 8] = X[rs1][offset2 + 7 : offset2 ];
-                    X[rd][23:16] = X[rs1][offset3 + 7 : offset3 ];
-                    X[rd][31:24] = X[rs1][15: 8];
+                    X[rd] = pack4(X[rs1][offset1 + 7 : offset1 ],
+                                  X[rs1][offset2 + 7 : offset2 ],
+                                  X[rs1][offset3 + 7 : offset3 ],
+                                  X[rs1][15: 8]);
                 }
             }
         }
@@ -1469,10 +1478,10 @@ InstructionSet XCoreVSimd {
                     unsigned<5> offset1 = (unsigned<5>)(Imm6[1:0] * 8);
                     unsigned<5> offset2 = (unsigned<5>)(Imm6[3:2] * 8);
                     unsigned<5> offset3 = (unsigned<5>)(Imm6[5:4] * 8);
-                    X[rd][ 7: 0] = X[rs1][offset1 + 7 : offset1 ];
-                    X[rd][15: 8] = X[rs1][offset2 + 7 : offset2 ];
-                    X[rd][23:16] = X[rs1][offset3 + 7 : offset3 ];
-                    X[rd][31:24] = X[rs1][23:16];
+                    X[rd] = pack4(X[rs1][offset1 + 7 : offset1 ],
+                                  X[rs1][offset2 + 7 : offset2 ],
+                                  X[rs1][offset3 + 7 : offset3 ],
+                                  X[rs1][23:16]);
                 }
             }
         }
@@ -1484,10 +1493,10 @@ InstructionSet XCoreVSimd {
                     unsigned<5> offset1 = (unsigned<5>)(Imm6[1:0] * 8);
                     unsigned<5> offset2 = (unsigned<5>)(Imm6[3:2] * 8);
                     unsigned<5> offset3 = (unsigned<5>)(Imm6[5:4] * 8);
-                    X[rd][ 7: 0] = X[rs1][offset1 + 7 : offset1 ];
-                    X[rd][15: 8] = X[rs1][offset2 + 7 : offset2 ];
-                    X[rd][23:16] = X[rs1][offset3 + 7 : offset3 ];
-                    X[rd][31:24] = X[rs1][31:24];
+                    X[rd] = pack4(X[rs1][offset1 + 7 : offset1 ],
+                                  X[rs1][offset2 + 7 : offset2 ],
+                                  X[rs1][offset3 + 7 : offset3 ],
+                                  X[rs1][31:24]);
                 }
             }
         }
@@ -1498,8 +1507,8 @@ InstructionSet XCoreVSimd {
                 if (rd != 0) {
                     unsigned<5> offset1 = (unsigned<5>)(X[rs2][15: 0][0] * 16);
                     unsigned<5> offset2 = (unsigned<5>)(X[rs2][31:16][0] * 16);
-                    X[rd][15: 0] = (X[rs2][15: 0][1] ? X[rs1] : X[rd])[offset1 + 15 : offset1 ];
-                    X[rd][31:16] = (X[rs2][31:16][1] ? X[rs1] : X[rd])[offset2 + 15 : offset2 ];
+                    X[rd] = pack2((X[rs2][15: 0][1] ? X[rs1] : X[rd])[offset1 + 15 : offset1 ],
+                                  (X[rs2][31:16][1] ? X[rs1] : X[rd])[offset2 + 15 : offset2 ]);
                 }
             }
         }
@@ -1512,10 +1521,10 @@ InstructionSet XCoreVSimd {
                     unsigned<5> offset2 = (unsigned<5>)(X[rs2][15: 8][1:0] * 8);
                     unsigned<5> offset3 = (unsigned<5>)(X[rs2][23:16][1:0] * 8);
                     unsigned<5> offset4 = (unsigned<5>)(X[rs2][31:24][1:0] * 8);
-                    X[rd][ 7: 0] = (X[rs2][ 7: 0][2] ? X[rs1] : X[rd])[offset1 + 7 : offset1 ];
-                    X[rd][15: 8] = (X[rs2][15: 8][2] ? X[rs1] : X[rd])[offset2 + 7 : offset2 ];
-                    X[rd][23:16] = (X[rs2][23:16][2] ? X[rs1] : X[rd])[offset3 + 7 : offset3 ];
-                    X[rd][31:24] = (X[rs2][31:24][2] ? X[rs1] : X[rd])[offset4 + 7 : offset4 ];
+                    X[rd] = pack4((X[rs2][ 7: 0][2] ? X[rs1] : X[rd])[offset1 + 7 : offset1 ],
+                                  (X[rs2][15: 8][2] ? X[rs1] : X[rd])[offset2 + 7 : offset2 ],
+                                  (X[rs2][23:16][2] ? X[rs1] : X[rd])[offset3 + 7 : offset3 ],
+                                  (X[rs2][31:24][2] ? X[rs1] : X[rd])[offset4 + 7 : offset4 ]);
                 }
             }
         }
@@ -1524,8 +1533,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.pack", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][31:16] = X[rs1][15: 0];
-                    X[rd][15: 0] = X[rs2][15: 0];
+                    X[rd] = pack2(X[rs2][15: 0],
+                                  X[rs1][15: 0]);
                 }
             }
         }
@@ -1534,8 +1543,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.pack.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][31:16] = X[rs1][31:16];
-                    X[rd][15: 0] = X[rs2][31:16];
+                    X[rd] = pack2(X[rs2][31:16],
+                                  X[rs1][31:16]);
                 }
             }
         }
@@ -1565,8 +1574,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpeq.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)(X[rs1][15: 0] == X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)(X[rs1][31:16] == X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)(X[rs1][15: 0] == X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)(X[rs1][31:16] == X[rs2][31:16])));
                 }
             }
         }
@@ -1575,8 +1584,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpeq.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)(X[rs1][15: 0] == X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)(X[rs1][31:16] == X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)(X[rs1][15: 0] == X[rs2][15:0])),
+                                  (unsigned<16>)((signed)(X[rs1][31:16] == X[rs2][15:0])));
                 }
             }
         }
@@ -1585,8 +1594,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpeq.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)(X[rs1][15: 0] == ((unsigned<16>)((signed)Imm6))));
-                    X[rd][31:16] = (unsigned<16>)((signed)(X[rs1][31:16] == ((unsigned<16>)((signed)Imm6))));
+                    X[rd] = pack2((unsigned<16>)((signed)(X[rs1][15: 0] == ((unsigned<16>)((signed)Imm6)))),
+                                  (unsigned<16>)((signed)(X[rs1][31:16] == ((unsigned<16>)((signed)Imm6)))));
                 }
             }
         }
@@ -1595,10 +1604,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpeq.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)(X[rs1][ 7: 0] == X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)(X[rs1][15: 8] == X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)(X[rs1][23:16] == X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)(X[rs1][31:24] == X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)(X[rs1][ 7: 0] == X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)(X[rs1][15: 8] == X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)(X[rs1][23:16] == X[rs2][23:16])),
+                                  (unsigned<8>)((signed)(X[rs1][31:24] == X[rs2][31:24])));
                 }
             }
         }
@@ -1607,10 +1616,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpeq.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)(X[rs1][ 7: 0] == X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)(X[rs1][15: 8] == X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)(X[rs1][23:16] == X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)(X[rs1][31:24] == X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)(X[rs1][ 7: 0] == X[rs2][7:0])),
+                                  (unsigned<8>)((signed)(X[rs1][15: 8] == X[rs2][7:0])),
+                                  (unsigned<8>)((signed)(X[rs1][23:16] == X[rs2][7:0])),
+                                  (unsigned<8>)((signed)(X[rs1][31:24] == X[rs2][7:0])));
                 }
             }
         }
@@ -1619,10 +1628,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpeq.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)(X[rs1][ 7: 0] == ((unsigned<8>)((signed)Imm6))));
-                    X[rd][15: 8] = (unsigned<8>)((signed)(X[rs1][15: 8] == ((unsigned<8>)((signed)Imm6))));
-                    X[rd][23:16] = (unsigned<8>)((signed)(X[rs1][23:16] == ((unsigned<8>)((signed)Imm6))));
-                    X[rd][31:24] = (unsigned<8>)((signed)(X[rs1][31:24] == ((unsigned<8>)((signed)Imm6))));
+                    X[rd] = pack4((unsigned<8>)((signed)(X[rs1][ 7: 0] == ((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)(X[rs1][15: 8] == ((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)(X[rs1][23:16] == ((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)(X[rs1][31:24] == ((unsigned<8>)((signed)Imm6)))));
                 }
             }
         }
@@ -1631,8 +1640,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpne.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)(X[rs1][15: 0] != X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)(X[rs1][31:16] != X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)(X[rs1][15: 0] != X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)(X[rs1][31:16] != X[rs2][31:16])));
                 }
             }
         }
@@ -1641,8 +1650,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpne.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)(X[rs1][15: 0] != X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)(X[rs1][31:16] != X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)(X[rs1][15: 0] != X[rs2][15:0])),
+                                  (unsigned<16>)((signed)(X[rs1][31:16] != X[rs2][15:0])));
                 }
             }
         }
@@ -1651,8 +1660,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpne.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)(X[rs1][15: 0] != ((unsigned<16>)((signed)Imm6))));
-                    X[rd][31:16] = (unsigned<16>)((signed)(X[rs1][31:16] != ((unsigned<16>)((signed)Imm6))));
+                    X[rd] = pack2((unsigned<16>)((signed)(X[rs1][15: 0] != ((unsigned<16>)((signed)Imm6)))),
+                                  (unsigned<16>)((signed)(X[rs1][31:16] != ((unsigned<16>)((signed)Imm6)))));
                 }
             }
         }
@@ -1661,10 +1670,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpne.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)(X[rs1][ 7: 0] != X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)(X[rs1][15: 8] != X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)(X[rs1][23:16] != X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)(X[rs1][31:24] != X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)(X[rs1][ 7: 0] != X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)(X[rs1][15: 8] != X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)(X[rs1][23:16] != X[rs2][23:16])),
+                                  (unsigned<8>)((signed)(X[rs1][31:24] != X[rs2][31:24])));
                 }
             }
         }
@@ -1673,10 +1682,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpne.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)(X[rs1][ 7: 0] != X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)(X[rs1][15: 8] != X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)(X[rs1][23:16] != X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)(X[rs1][31:24] != X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)(X[rs1][ 7: 0] != X[rs2][7:0])),
+                                  (unsigned<8>)((signed)(X[rs1][15: 8] != X[rs2][7:0])),
+                                  (unsigned<8>)((signed)(X[rs1][23:16] != X[rs2][7:0])),
+                                  (unsigned<8>)((signed)(X[rs1][31:24] != X[rs2][7:0])));
                 }
             }
         }
@@ -1685,10 +1694,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpne.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)(X[rs1][ 7: 0] != ((unsigned<8>)((signed)Imm6))));
-                    X[rd][15: 8] = (unsigned<8>)((signed)(X[rs1][15: 8] != ((unsigned<8>)((signed)Imm6))));
-                    X[rd][23:16] = (unsigned<8>)((signed)(X[rs1][23:16] != ((unsigned<8>)((signed)Imm6))));
-                    X[rd][31:24] = (unsigned<8>)((signed)(X[rs1][31:24] != ((unsigned<8>)((signed)Imm6))));
+                    X[rd] = pack4((unsigned<8>)((signed)(X[rs1][ 7: 0] != ((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)(X[rs1][15: 8] != ((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)(X[rs1][23:16] != ((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)(X[rs1][31:24] != ((unsigned<8>)((signed)Imm6)))));
                 }
             }
         }
@@ -1697,8 +1706,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgt.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] > (signed)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] > (signed)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] > (signed)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] > (signed)X[rs2][31:16])));
                 }
             }
         }
@@ -1707,8 +1716,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgt.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] > (signed)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] > (signed)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] > (signed)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] > (signed)X[rs2][15:0])));
                 }
             }
         }
@@ -1717,8 +1726,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgt.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] > (signed)((unsigned<16>)((signed)Imm6))));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] > (signed)((unsigned<16>)((signed)Imm6))));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] > (signed)((unsigned<16>)((signed)Imm6)))),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] > (signed)((unsigned<16>)((signed)Imm6)))));
                 }
             }
         }
@@ -1727,10 +1736,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgt.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] > (signed)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] > (signed)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] > (signed)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] > (signed)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] > (signed)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] > (signed)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] > (signed)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] > (signed)X[rs2][31:24])));
                 }
             }
         }
@@ -1739,10 +1748,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgt.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] > (signed)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] > (signed)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] > (signed)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] > (signed)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] > (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] > (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] > (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] > (signed)X[rs2][7:0])));
                 }
             }
         }
@@ -1751,10 +1760,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgt.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] > (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] > (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] > (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] > (signed)((unsigned<8>)((signed)Imm6))));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] > (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] > (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] > (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] > (signed)((unsigned<8>)((signed)Imm6)))));
                 }
             }
         }
@@ -1763,8 +1772,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpge.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] >= (signed)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] >= (signed)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] >= (signed)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] >= (signed)X[rs2][31:16])));
                 }
             }
         }
@@ -1773,8 +1782,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpge.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] >= (signed)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] >= (signed)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] >= (signed)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] >= (signed)X[rs2][15:0])));
                 }
             }
         }
@@ -1783,8 +1792,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpge.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] >= (signed)((unsigned<16>)((signed)Imm6))));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] >= (signed)((unsigned<16>)((signed)Imm6))));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] >= (signed)((unsigned<16>)((signed)Imm6)))),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] >= (signed)((unsigned<16>)((signed)Imm6)))));
                 }
             }
         }
@@ -1793,10 +1802,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpge.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] >= (signed)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] >= (signed)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] >= (signed)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] >= (signed)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] >= (signed)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] >= (signed)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] >= (signed)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] >= (signed)X[rs2][31:24])));
                 }
             }
         }
@@ -1805,10 +1814,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpge.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] >= (signed)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] >= (signed)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] >= (signed)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] >= (signed)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] >= (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] >= (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] >= (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] >= (signed)X[rs2][7:0])));
                 }
             }
         }
@@ -1817,10 +1826,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpge.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] >= (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] >= (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] >= (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] >= (signed)((unsigned<8>)((signed)Imm6))));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] >= (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] >= (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] >= (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] >= (signed)((unsigned<8>)((signed)Imm6)))));
                 }
             }
         }
@@ -1829,8 +1838,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmplt.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] < (signed)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] < (signed)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] < (signed)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] < (signed)X[rs2][31:16])));
                 }
             }
         }
@@ -1839,8 +1848,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmplt.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] < (signed)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] < (signed)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] < (signed)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] < (signed)X[rs2][15:0])));
                 }
             }
         }
@@ -1849,8 +1858,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmplt.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] < (signed)((unsigned<16>)((signed)Imm6))));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] < (signed)((unsigned<16>)((signed)Imm6))));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] < (signed)((unsigned<16>)((signed)Imm6)))),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] < (signed)((unsigned<16>)((signed)Imm6)))));
                 }
             }
         }
@@ -1859,10 +1868,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmplt.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] < (signed)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] < (signed)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] < (signed)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] < (signed)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] < (signed)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] < (signed)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] < (signed)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] < (signed)X[rs2][31:24])));
                 }
             }
         }
@@ -1871,10 +1880,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmplt.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] < (signed)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] < (signed)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] < (signed)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] < (signed)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] < (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] < (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] < (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] < (signed)X[rs2][7:0])));
                 }
             }
         }
@@ -1883,10 +1892,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmplt.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] < (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] < (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] < (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] < (signed)((unsigned<8>)((signed)Imm6))));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] < (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] < (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] < (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] < (signed)((unsigned<8>)((signed)Imm6)))));
                 }
             }
         }
@@ -1895,8 +1904,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmple.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] <= (signed)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] <= (signed)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] <= (signed)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] <= (signed)X[rs2][31:16])));
                 }
             }
         }
@@ -1905,8 +1914,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmple.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] <= (signed)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] <= (signed)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] <= (signed)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] <= (signed)X[rs2][15:0])));
                 }
             }
         }
@@ -1915,8 +1924,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmple.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((signed)X[rs1][15: 0] <= (signed)((unsigned<16>)((signed)Imm6))));
-                    X[rd][31:16] = (unsigned<16>)((signed)((signed)X[rs1][31:16] <= (signed)((unsigned<16>)((signed)Imm6))));
+                    X[rd] = pack2((unsigned<16>)((signed)((signed)X[rs1][15: 0] <= (signed)((unsigned<16>)((signed)Imm6)))),
+                                  (unsigned<16>)((signed)((signed)X[rs1][31:16] <= (signed)((unsigned<16>)((signed)Imm6)))));
                 }
             }
         }
@@ -1925,10 +1934,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmple.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] <= (signed)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] <= (signed)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] <= (signed)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] <= (signed)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] <= (signed)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] <= (signed)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] <= (signed)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] <= (signed)X[rs2][31:24])));
                 }
             }
         }
@@ -1937,10 +1946,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmple.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] <= (signed)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] <= (signed)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] <= (signed)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] <= (signed)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] <= (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] <= (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] <= (signed)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] <= (signed)X[rs2][7:0])));
                 }
             }
         }
@@ -1949,10 +1958,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmple.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((signed)X[rs1][ 7: 0] <= (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((signed)X[rs1][15: 8] <= (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][23:16] = (unsigned<8>)((signed)((signed)X[rs1][23:16] <= (signed)((unsigned<8>)((signed)Imm6))));
-                    X[rd][31:24] = (unsigned<8>)((signed)((signed)X[rs1][31:24] <= (signed)((unsigned<8>)((signed)Imm6))));
+                    X[rd] = pack4((unsigned<8>)((signed)((signed)X[rs1][ 7: 0] <= (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][15: 8] <= (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][23:16] <= (signed)((unsigned<8>)((signed)Imm6)))),
+                                  (unsigned<8>)((signed)((signed)X[rs1][31:24] <= (signed)((unsigned<8>)((signed)Imm6)))));
                 }
             }
         }
@@ -1961,8 +1970,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgtu.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] > (unsigned)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] > (unsigned)X[rs2][31:16])));
                 }
             }
         }
@@ -1971,8 +1980,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgtu.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] > (unsigned)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] > (unsigned)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] > (unsigned)X[rs2][15:0])));
                 }
             }
         }
@@ -1981,8 +1990,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgtu.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] > (unsigned)((unsigned<16>)Imm6)));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] > (unsigned)((unsigned<16>)Imm6)));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] > (unsigned)((unsigned<16>)Imm6))),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] > (unsigned)((unsigned<16>)Imm6))));
                 }
             }
         }
@@ -1991,10 +2000,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgtu.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] > (unsigned)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] > (unsigned)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] > (unsigned)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] > (unsigned)X[rs2][31:24])));
                 }
             }
         }
@@ -2003,10 +2012,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgtu.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] > (unsigned)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] > (unsigned)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] > (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] > (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] > (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] > (unsigned)X[rs2][7:0])));
                 }
             }
         }
@@ -2015,10 +2024,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgtu.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] > (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] > (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] > (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] > (unsigned)((unsigned<8>)Imm6)));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] > (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] > (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] > (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] > (unsigned)((unsigned<8>)Imm6))));
                 }
             }
         }
@@ -2027,8 +2036,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgeu.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] >= (unsigned)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] >= (unsigned)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] >= (unsigned)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] >= (unsigned)X[rs2][31:16])));
                 }
             }
         }
@@ -2037,8 +2046,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgeu.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] >= (unsigned)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] >= (unsigned)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] >= (unsigned)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] >= (unsigned)X[rs2][15:0])));
                 }
             }
         }
@@ -2047,8 +2056,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgeu.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] >= (unsigned)((unsigned<16>)Imm6)));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] >= (unsigned)((unsigned<16>)Imm6)));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] >= (unsigned)((unsigned<16>)Imm6))),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] >= (unsigned)((unsigned<16>)Imm6))));
                 }
             }
         }
@@ -2057,10 +2066,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgeu.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] >= (unsigned)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] >= (unsigned)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] >= (unsigned)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] >= (unsigned)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] >= (unsigned)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] >= (unsigned)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] >= (unsigned)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] >= (unsigned)X[rs2][31:24])));
                 }
             }
         }
@@ -2069,10 +2078,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgeu.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] >= (unsigned)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] >= (unsigned)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] >= (unsigned)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] >= (unsigned)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] >= (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] >= (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] >= (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] >= (unsigned)X[rs2][7:0])));
                 }
             }
         }
@@ -2081,10 +2090,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpgeu.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] >= (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] >= (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] >= (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] >= (unsigned)((unsigned<8>)Imm6)));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] >= (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] >= (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] >= (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] >= (unsigned)((unsigned<8>)Imm6))));
                 }
             }
         }
@@ -2093,8 +2102,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpltu.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] < (unsigned)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] < (unsigned)X[rs2][31:16])));
                 }
             }
         }
@@ -2103,8 +2112,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpltu.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] < (unsigned)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] < (unsigned)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] < (unsigned)X[rs2][15:0])));
                 }
             }
         }
@@ -2113,8 +2122,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpltu.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] < (unsigned)((unsigned<16>)Imm6)));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] < (unsigned)((unsigned<16>)Imm6)));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] < (unsigned)((unsigned<16>)Imm6))),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] < (unsigned)((unsigned<16>)Imm6))));
                 }
             }
         }
@@ -2123,10 +2132,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpltu.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] < (unsigned)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] < (unsigned)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] < (unsigned)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] < (unsigned)X[rs2][31:24])));
                 }
             }
         }
@@ -2135,10 +2144,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpltu.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] < (unsigned)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] < (unsigned)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] < (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] < (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] < (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] < (unsigned)X[rs2][7:0])));
                 }
             }
         }
@@ -2147,10 +2156,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpltu.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] < (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] < (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] < (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] < (unsigned)((unsigned<8>)Imm6)));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] < (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] < (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] < (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] < (unsigned)((unsigned<8>)Imm6))));
                 }
             }
         }
@@ -2159,8 +2168,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpleu.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] <= (unsigned)X[rs2][15: 0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] <= (unsigned)X[rs2][31:16]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] <= (unsigned)X[rs2][15: 0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] <= (unsigned)X[rs2][31:16])));
                 }
             }
         }
@@ -2169,8 +2178,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpleu.sc.h", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] <= (unsigned)X[rs2][15:0]));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] <= (unsigned)X[rs2][15:0]));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] <= (unsigned)X[rs2][15:0])),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] <= (unsigned)X[rs2][15:0])));
                 }
             }
         }
@@ -2179,8 +2188,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpleu.sci.h", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = (unsigned<16>)((signed)((unsigned)X[rs1][15: 0] <= (unsigned)((unsigned<16>)Imm6)));
-                    X[rd][31:16] = (unsigned<16>)((signed)((unsigned)X[rs1][31:16] <= (unsigned)((unsigned<16>)Imm6)));
+                    X[rd] = pack2((unsigned<16>)((signed)((unsigned)X[rs1][15: 0] <= (unsigned)((unsigned<16>)Imm6))),
+                                  (unsigned<16>)((signed)((unsigned)X[rs1][31:16] <= (unsigned)((unsigned<16>)Imm6))));
                 }
             }
         }
@@ -2189,10 +2198,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpleu.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] <= (unsigned)X[rs2][ 7: 0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] <= (unsigned)X[rs2][15: 8]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] <= (unsigned)X[rs2][23:16]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] <= (unsigned)X[rs2][31:24]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] <= (unsigned)X[rs2][ 7: 0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] <= (unsigned)X[rs2][15: 8])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] <= (unsigned)X[rs2][23:16])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] <= (unsigned)X[rs2][31:24])));
                 }
             }
         }
@@ -2201,10 +2210,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpleu.sc.b", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] <= (unsigned)X[rs2][7:0]));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] <= (unsigned)X[rs2][7:0]));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] <= (unsigned)X[rs2][7:0]));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] <= (unsigned)X[rs2][7:0]));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] <= (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] <= (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] <= (unsigned)X[rs2][7:0])),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] <= (unsigned)X[rs2][7:0])));
                 }
             }
         }
@@ -2213,10 +2222,10 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cmpleu.sci.b", "{name(rd)}, {name(rs1)}, {Imm6}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][ 7: 0] = (unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] <= (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][15: 8] = (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] <= (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][23:16] = (unsigned<8>)((signed)((unsigned)X[rs1][23:16] <= (unsigned)((unsigned<8>)Imm6)));
-                    X[rd][31:24] = (unsigned<8>)((signed)((unsigned)X[rs1][31:24] <= (unsigned)((unsigned<8>)Imm6)));
+                    X[rd] = pack4((unsigned<8>)((signed)((unsigned)X[rs1][ 7: 0] <= (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][15: 8] <= (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][23:16] <= (unsigned)((unsigned<8>)Imm6))),
+                                  (unsigned<8>)((signed)((unsigned)X[rs1][31:24] <= (unsigned)((unsigned<8>)Imm6))));
                 }
             }
         }
@@ -2298,8 +2307,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.cplxconj", "{name(rd)}, {name(rs1)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = X[rs1][15: 0];
-                    X[rd][31:16] = (-X[rs1][31:16])[15:0];
+                    X[rd] = pack2(X[rs1][15: 0],
+                                  (-X[rs1][31:16])[15:0]);
                 }
             }
         }
@@ -2344,8 +2353,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.div2", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 1)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 1)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 1)[15:0],
+                                  ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 1)[15:0]);
                 }
             }
         }
@@ -2354,8 +2363,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.div4", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 2)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 2)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 2)[15:0],
+                                  ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 2)[15:0]);
                 }
             }
         }
@@ -2364,8 +2373,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.add.div8", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 3)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 3)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] + X[rs2][15: 0]) >> 3)[15:0],
+                                  ((signed)(X[rs1][31:16] + X[rs2][31:16]) >> 3)[15:0]);
                 }
             }
         }
@@ -2374,8 +2383,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.div2", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] - X[rs2][15: 0]) >> 1)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] - X[rs2][31:16]) >> 1)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] - X[rs2][15: 0]) >> 1)[15:0],
+                                  ((signed)(X[rs1][31:16] - X[rs2][31:16]) >> 1)[15:0]);
                 }
             }
         }
@@ -2384,8 +2393,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.div4", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] - X[rs2][15: 0]) >> 2)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] - X[rs2][31:16]) >> 2)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] - X[rs2][15: 0]) >> 2)[15:0],
+                                  ((signed)(X[rs1][31:16] - X[rs2][31:16]) >> 2)[15:0]);
                 }
             }
         }
@@ -2394,8 +2403,8 @@ InstructionSet XCoreVSimd {
             assembly: {"cv.sub.div8", "{name(rd)}, {name(rs1)}, {name(rs2)}" };
             behavior: {
                 if (rd != 0) {
-                    X[rd][15: 0] = ((signed)(X[rs1][15: 0] - X[rs2][15: 0]) >> 3)[15:0];
-                    X[rd][31:16] = ((signed)(X[rs1][31:16] - X[rs2][31:16]) >> 3)[15:0];
+                    X[rd] = pack2(((signed)(X[rs1][15: 0] - X[rs2][15: 0]) >> 3)[15:0],
+                                  ((signed)(X[rs1][31:16] - X[rs2][31:16]) >> 3)[15:0]);
                 }
             }
         }
